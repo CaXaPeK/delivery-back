@@ -1,4 +1,4 @@
-namespace Delivery_Service
+namespace Delivery_Service.Schemas
 {
     public class WeatherForecast
     {

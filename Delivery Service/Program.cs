@@ -26,7 +26,6 @@ namespace Delivery_Service
 
             app.UseAuthorization();
 
-
             app.MapControllers();
 
             app.Run();
