@@ -22,7 +22,7 @@ namespace Delivery_Service.Schemas
         public bool vegetarian { get; set; }
 
         [AllowNull]
-        public double rating { get; set; }
+        public double? rating { get; set; }
 
         public DishCategory category { get; set; }
     }

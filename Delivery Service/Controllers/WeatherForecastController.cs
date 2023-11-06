@@ -45,22 +45,5 @@ namespace Delivery_Service.Controllers
             })
             .ToArray();
         }*/
-
-        [HttpGet]
-        public IEnumerable<DishDto> Get()
-        {
-            return Enumerable.Range(1, 5).Select(index => new DishDto
-            {
-                id = Guid.NewGuid(),
-                name = "ads",
-                description = "",
-                price = 0,
-                image = "poi",
-                vegetarian = false,
-                rating = 0,
-                category = DishCategory.Wok
-            })
-            .ToArray();
-        }
     }
 }
