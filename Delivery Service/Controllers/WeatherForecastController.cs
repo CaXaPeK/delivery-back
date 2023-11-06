@@ -1,4 +1,4 @@
-using Delivery_Service.Schemas;
+using Delivery_Service.Schemas.Classes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Delivery_Service.Controllers

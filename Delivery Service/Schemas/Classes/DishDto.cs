@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
+using Delivery_Service.Schemas.Enums;
 
-namespace Delivery_Service.Schemas
+namespace Delivery_Service.Schemas.Classes
 {
     public class DishDto
     {

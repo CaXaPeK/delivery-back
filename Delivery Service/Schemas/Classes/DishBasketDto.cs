@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Delivery_Service.Schemas
+namespace Delivery_Service.Schemas.Classes
 {
     public class DishBasketDto
     {
