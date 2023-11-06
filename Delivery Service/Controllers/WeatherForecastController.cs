@@ -32,16 +32,12 @@ namespace Delivery_Service.Controllers
         }*/
 
         [HttpGet]
-        public IEnumerable<DishBasketDto> Get()
+        public IEnumerable<Response> Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new DishBasketDto
+            return Enumerable.Range(1, 5).Select(index => new Response
             {
-                id = Guid.NewGuid(),
-                name = "ads",
-                price = 0,
-                totalPrice = 0,
-                amount = 1,
-                image = "poi"
+                status = "a",
+                message = "b"
             })
             .ToArray();
         }
