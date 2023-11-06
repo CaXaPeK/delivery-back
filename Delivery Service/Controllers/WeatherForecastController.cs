@@ -31,7 +31,7 @@ namespace Delivery_Service.Controllers
             .ToArray();
         }*/
 
-        /*[HttpGet]
+        [HttpGet]
         public IEnumerable<DishBasketDto> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new DishBasketDto
@@ -44,6 +44,6 @@ namespace Delivery_Service.Controllers
                 image = "poi"
             })
             .ToArray();
-        }*/
+        }
     }
 }

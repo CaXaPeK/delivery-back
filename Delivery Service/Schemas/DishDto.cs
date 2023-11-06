@@ -26,14 +26,4 @@ namespace Delivery_Service.Schemas
 
         public DishCategory category { get; set; }
     }
-
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum DishCategory
-    {
-        Wok,
-        Pizza,
-        Soup,
-        Dessert,
-        Drink
-    }
 }
