@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Delivery_Service.Schemas.Enums;
 using System;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Delivery_Service.Controllers
 {
@@ -89,6 +90,11 @@ namespace Delivery_Service.Controllers
             return _context.Users.OrderByDescending(x => x.Id).Select(x => x.Id).First();
         }
 
+        private int LastTokenId()
+        {
+            return _context.BadTokens.OrderByDescending(x => x.Id).Select(x => x.Id).First();
+        }
+
         private bool IsEmailUnique(string email)
         {
             if (_context.Users.Where(x => x.Email == email).Count() == 0)
@@ -122,6 +128,15 @@ namespace Delivery_Service.Controllers
             string encodedUserPassword = _context.Users.Where(x => x.Email == email).First().Password;
 
             if (encodedEnteredPassword == encodedUserPassword)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private bool IsTokenBad()
+        {
+            if (_context.BadTokens.Where(x => x.Value == GetToken()).Count() != 0)
             {
                 return true;
             }
@@ -218,6 +233,20 @@ namespace Delivery_Service.Controllers
                 return Unauthorized();
             }
 
+            if (IsTokenBad())
+            {
+                return Forbid();
+            }
+
+            BadToken token = new BadToken
+            {
+                Id = LastTokenId() + 1,
+                Value = GetToken()
+            };
+
+            _context.Add(token);
+            _context.SaveChanges();
+
             return Ok();
         }
 
@@ -228,6 +257,11 @@ namespace Delivery_Service.Controllers
             if (!IsTokenSent())
             {
                 return Unauthorized();
+            }
+
+            if (IsTokenBad())
+            {
+                return Forbid();
             }
 
             string email = GetEmailFromToken();
@@ -254,6 +288,11 @@ namespace Delivery_Service.Controllers
             if (!IsTokenSent())
             {
                 return Unauthorized();
+            }
+
+            if (IsTokenBad())
+            {
+                return Forbid();
             }
 
             if (!AddressExists(data.addressId))

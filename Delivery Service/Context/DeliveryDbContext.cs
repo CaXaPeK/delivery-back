@@ -218,7 +218,13 @@ public partial class DeliveryDbContext : DbContext
 
         modelBuilder.Entity<BadToken>(entity =>
         {
+            entity.HasKey(e => e.Id).HasName("badToken_pkey");
+
             entity.ToTable("badToken", "fias");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
 
             entity.Property(e => e.Value).HasColumnName("value");
         });
