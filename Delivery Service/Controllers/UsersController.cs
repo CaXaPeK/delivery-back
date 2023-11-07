@@ -97,7 +97,7 @@ namespace Delivery_Service.Controllers
 
         private int NewTokenId()
         {
-            if (_context.Users.Count() > 0)
+            if (_context.BadTokens.Count() > 0)
             {
                 return _context.BadTokens.OrderByDescending(x => x.Id).Select(x => x.Id).First() + 1;
             }
