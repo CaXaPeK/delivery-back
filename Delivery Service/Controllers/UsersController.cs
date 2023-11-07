@@ -60,12 +60,17 @@ namespace Delivery_Service.Controllers
             return tokenHandler.WriteToken(token);
         }
 
+        private int LastUserId()
+        {
+            return _context.Users.OrderByDescending(x => x.Id).Select(x => x.Id).First();
+        }
+
         [HttpPost]
         public IActionResult Register(UserRegisterModel data)
         {
             User user = new User
             {
-                Id = 0,
+                Id = LastUserId() + 1,
                 FullName = data.fullName,
                 BirthDate = DateOnly.FromDateTime(data.birthDate),
                 Gender = (data.gender == Gender.Male) ? "M" : "F",
