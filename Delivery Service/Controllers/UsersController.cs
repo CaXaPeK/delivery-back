@@ -85,14 +85,24 @@ namespace Delivery_Service.Controllers
             return token.Claims.First(claim => claim.Type == "email").Value;
         }
 
-        private int LastUserId()
+        private int NewUserId()
         {
-            return _context.Users.OrderByDescending(x => x.Id).Select(x => x.Id).First();
+            if (_context.Users.Count() > 0)
+            {
+                return _context.Users.OrderByDescending(x => x.Id).Select(x => x.Id).First() + 1;
+            }
+
+            return 0;
         }
 
-        private int LastTokenId()
+        private int NewTokenId()
         {
-            return _context.BadTokens.OrderByDescending(x => x.Id).Select(x => x.Id).First();
+            if (_context.Users.Count() > 0)
+            {
+                return _context.BadTokens.OrderByDescending(x => x.Id).Select(x => x.Id).First() + 1;
+            }
+
+            return 0;
         }
 
         private bool IsEmailUnique(string email)
@@ -170,7 +180,7 @@ namespace Delivery_Service.Controllers
 
             User user = new User
             {
-                Id = LastUserId() + 1,
+                Id = NewUserId(),
                 FullName = data.fullName,
                 BirthDate = data.birthDate,
                 Gender = (data.gender == Gender.Male) ? "M" : "F",
@@ -240,7 +250,7 @@ namespace Delivery_Service.Controllers
 
             BadToken token = new BadToken
             {
-                Id = LastTokenId() + 1,
+                Id = NewTokenId(),
                 Value = GetToken()
             };
 
@@ -315,6 +325,8 @@ namespace Delivery_Service.Controllers
             user.Gender = (data.gender == Gender.Male) ? "M" : "F";
             user.Address = data.addressId.ToString();
             user.Phone = data.phoneNumber;
+
+            _context.SaveChanges();
 
             return Ok();
         }
