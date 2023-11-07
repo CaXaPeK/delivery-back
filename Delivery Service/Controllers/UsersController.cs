@@ -249,8 +249,34 @@ namespace Delivery_Service.Controllers
 
         [Authorize]
         [HttpPut]
-        public IActionResult profileedit()
+        public IActionResult profileedit(UserEditModel data)
         {
+            if (!IsTokenSent())
+            {
+                return Unauthorized();
+            }
+
+            if (!AddressExists(data.addressId))
+            {
+                Response response = new Response
+                {
+                    status = "Некорректный адрес проживания",
+                    message = "Введённый адрес проживания отсутствует в базе данных."
+                };
+
+                return BadRequest(response);
+            }
+
+            string email = GetEmailFromToken();
+            int userId = _context.Users.Where(x => x.Email == email).First().Id;
+            User user = _context.Users.Find(userId);
+
+            user.FullName = data.fullName;
+            user.BirthDate = data.birthDate;
+            user.Gender = (data.gender == Gender.Male) ? "M" : "F";
+            user.Address = data.addressId.ToString();
+            user.Phone = data.phoneNumber;
+
             return Ok();
         }
     }

@@ -21,6 +21,8 @@ public partial class DeliveryDbContext : DbContext
 
     public virtual DbSet<AsHouse> AsHouses { get; set; }
 
+    public virtual DbSet<BadToken> BadTokens { get; set; }
+
     public virtual DbSet<Dish> Dishes { get; set; }
 
     public virtual DbSet<DishInCart> DishInCarts { get; set; }
@@ -212,6 +214,13 @@ public partial class DeliveryDbContext : DbContext
             entity.Property(e => e.Updatedate)
                 .HasComment("Дата внесения (обновления) записи")
                 .HasColumnName("updatedate");
+        });
+
+        modelBuilder.Entity<BadToken>(entity =>
+        {
+            entity.ToTable("badToken", "fias");
+
+            entity.Property(e => e.Value).HasColumnName("value");
         });
 
         modelBuilder.Entity<Dish>(entity =>

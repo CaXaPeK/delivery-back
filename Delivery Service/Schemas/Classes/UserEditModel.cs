@@ -9,7 +9,7 @@ namespace Delivery_Service.Schemas.Classes
         [MinLength(1)]
         public string fullName { get; set; }
 
-        public DateTime birthDate { get; set; }
+        public DateOnly birthDate { get; set; }
 
         [Required]
         public Gender gender { get; set; }
