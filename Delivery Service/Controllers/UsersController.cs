@@ -9,7 +9,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Delivery_Service.Schemas.Enums;
-using System.Net;
+using System;
 
 namespace Delivery_Service.Controllers
 {
@@ -51,6 +51,37 @@ namespace Delivery_Service.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
+        }
+
+        private bool IsTokenSent()
+        {
+            if (HttpContext.Request.Headers.ContainsKey("Authorization"))
+            {
+                string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
+
+                if (authorizationHeader.StartsWith("Bearer "))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private string GetToken()
+        {
+            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
+            string token = authorizationHeader.Substring("Bearer ".Length);
+
+            return token;
+        }
+
+        private string GetEmailFromToken()
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.ReadJwtToken(GetToken());
+
+            return token.Claims.First(claim => claim.Type == "email").Value;
         }
 
         private int LastUserId()
@@ -179,8 +210,46 @@ namespace Delivery_Service.Controllers
         }
 
         [Authorize]
+        [HttpPost]
+        public IActionResult logout()
+        {
+            if (!IsTokenSent())
+            {
+                return Unauthorized();
+            }
+
+            return Ok();
+        }
+
+        [Authorize]
         [HttpGet]
-        public IActionResult profile()
+        public IActionResult profileget()
+        {
+            if (!IsTokenSent())
+            {
+                return Unauthorized();
+            }
+
+            string email = GetEmailFromToken();
+            User userDb = _context.Users.Where(x => x.Email == email).First();
+
+            UserDto userProfile = new UserDto
+            {
+                id = userDb.Id,
+                fullName = userDb.FullName,
+                birthDate = userDb.BirthDate,
+                gender = (userDb.Gender == "M") ? Gender.Male : Gender.Female,
+                address = new Guid(userDb.Address),
+                email = userDb.Email,
+                phoneNumber = userDb.Phone
+            };
+
+            return Ok(userProfile);
+        }
+
+        [Authorize]
+        [HttpPut]
+        public IActionResult profileedit()
         {
             return Ok();
         }
