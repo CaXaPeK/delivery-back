@@ -14,7 +14,7 @@ using System.Net;
 namespace Delivery_Service.Controllers
 {
     [ApiController]
-    [Route("[controller]/[action]")]
+    [Route("api/account/[action]")]
     public class UsersController : ControllerBase
     {
         private readonly DeliveryDbContext _context;
@@ -22,13 +22,6 @@ namespace Delivery_Service.Controllers
         public UsersController(DeliveryDbContext context)
         {
             _context = context;
-        }
-
-        [Authorize]
-        [HttpGet]
-        public IActionResult Profile()
-        {
-            return Ok();
         }
 
         private string EncodePassword(string password)
@@ -74,6 +67,15 @@ namespace Delivery_Service.Controllers
             return false;
         }
 
+        private bool EmailExists(string email)
+        {
+            if (_context.Users.Where(x => x.Email == email).Count() != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
         private bool AddressExists(Guid addressGuid)
         {
             if (_context.AsHouses.Where(x => x.Objectguid == addressGuid).Count() != 0)
@@ -83,8 +85,20 @@ namespace Delivery_Service.Controllers
             return false;
         }
 
+        private bool IsPasswordValid(string email, string password)
+        {
+            string encodedEnteredPassword = EncodePassword(password);
+            string encodedUserPassword = _context.Users.Where(x => x.Email == email).First().Password;
+
+            if (encodedEnteredPassword == encodedUserPassword)
+            {
+                return true;
+            }
+            return false;
+        }
+
         [HttpPost]
-        public IActionResult Register(UserRegisterModel data)
+        public IActionResult register(UserRegisterModel data)
         {
             if (!IsEmailUnique(data.email))
             {
@@ -132,14 +146,43 @@ namespace Delivery_Service.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(LoginCredentials credentials)
+        public IActionResult login(LoginCredentials credentials)
         {
+            if (!EmailExists(credentials.email))
+            {
+                Response response = new Response
+                {
+                    status = "Некорректный адрес эл. почты",
+                    message = "Пользователя с таким адресом электронной почты не существует."
+                };
+
+                return BadRequest(response);
+            }
+
+            if (!IsPasswordValid(credentials.email, credentials.password))
+            {
+                Response response = new Response
+                {
+                    status = "Неверный пароль",
+                    message = "Введённый пароль не подходит."
+                };
+
+                return BadRequest(response);
+            }
+
             TokenResponse tokenResponse = new TokenResponse
             {
                 token = GenerateToken(credentials.email)
             };
 
             return Ok(tokenResponse);
+        }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult profile()
+        {
+            return Ok();
         }
     }
 }
