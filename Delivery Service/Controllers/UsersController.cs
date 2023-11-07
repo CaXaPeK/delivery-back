@@ -74,7 +74,15 @@ namespace Delivery_Service.Controllers
             return false;
         }
 
-        //TODO: добавить проверку на корректный адрес
+        private bool AddressExists(Guid addressGuid)
+        {
+            if (_context.AsHouses.Where(x => x.Objectguid == addressGuid).Count() != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
         [HttpPost]
         public IActionResult Register(UserRegisterModel data)
         {
@@ -84,6 +92,17 @@ namespace Delivery_Service.Controllers
                 {
                     status = "Некорректный адрес эл. почты",
                     message = "Пользователь с таким адресом электронной почты уже существует."
+                };
+
+                return BadRequest(response);
+            }
+
+            if (!AddressExists(data.addressId))
+            {
+                Response response = new Response
+                {
+                    status = "Некорректный адрес проживания",
+                    message = "Введённый адрес проживания отсутствует в базе данных."
                 };
 
                 return BadRequest(response);
