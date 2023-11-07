@@ -65,9 +65,30 @@ namespace Delivery_Service.Controllers
             return _context.Users.OrderByDescending(x => x.Id).Select(x => x.Id).First();
         }
 
+        private bool IsEmailUnique(string email)
+        {
+            if (_context.Users.Where(x => x.Email == email).Count() == 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        //TODO: добавить проверку на корректный адрес
         [HttpPost]
         public IActionResult Register(UserRegisterModel data)
         {
+            if (!IsEmailUnique(data.email))
+            {
+                Response response = new Response
+                {
+                    status = "Некорректный адрес эл. почты",
+                    message = "Пользователь с таким адресом электронной почты уже существует."
+                };
+
+                return BadRequest(response);
+            }
+
             User user = new User
             {
                 Id = LastUserId() + 1,
@@ -94,25 +115,12 @@ namespace Delivery_Service.Controllers
         [HttpPost]
         public IActionResult Login(LoginCredentials credentials)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes("abcdefghijklmnopqrstuvwxyz");
-
-            var tokenDescriptor = new SecurityTokenDescriptor()
+            TokenResponse tokenResponse = new TokenResponse
             {
-                NotBefore = DateTime.UtcNow,
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Issuer = "Delivery",
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Email, credentials.email)
-                }),
-                Audience = "audience"
+                token = GenerateToken(credentials.email)
             };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return Ok(tokenHandler.WriteToken(token));
+            return Ok(tokenResponse);
         }
     }
 }
