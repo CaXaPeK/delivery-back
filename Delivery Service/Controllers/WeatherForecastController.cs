@@ -1,3 +1,4 @@
+using Delivery_Service.Context;
 using Delivery_Service.Schemas.Classes;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,16 +8,20 @@ namespace Delivery_Service.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
+        private readonly DeliveryDbContext _context;
 
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(DeliveryDbContext context)
         {
-            _logger = logger;
+            _context = context;
+        }
+
+        [HttpGet]
+        public IActionResult Get()
+        {
+            var addresses = _context.AsAddrObjs
+                .Where(x => x.Level == "6");
+
+            return Ok(addresses);
         }
 
         /*[HttpGet(Name = "GetWeatherForecast")]
@@ -31,7 +36,7 @@ namespace Delivery_Service.Controllers
             .ToArray();
         }*/
 
-        [HttpGet]
+        /*[HttpGet]
         public IEnumerable<Response> Get()
         {
             return Enumerable.Range(1, 5).Select(index => new Response
@@ -40,6 +45,6 @@ namespace Delivery_Service.Controllers
                 message = "b"
             })
             .ToArray();
-        }
+        }*/
     }
 }
