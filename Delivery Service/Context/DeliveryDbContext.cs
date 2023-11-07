@@ -227,6 +227,7 @@ public partial class DeliveryDbContext : DbContext
                 .HasColumnName("id");
 
             entity.Property(e => e.Value).HasColumnName("value");
+            entity.Property(e => e.AddedAt).HasColumnName("addedAt");
         });
 
         modelBuilder.Entity<Dish>(entity =>

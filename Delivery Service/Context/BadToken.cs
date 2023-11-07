@@ -8,5 +8,7 @@ namespace Delivery_Service.Context
         public int Id { get; set; }
 
         public string? Value {  get; set; }
+
+        public DateTime AddedAt {  get; set; }
     }
 }

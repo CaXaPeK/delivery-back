@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using Delivery_Service.Controllers;
 
 namespace Delivery_Service
 {
@@ -49,7 +50,7 @@ namespace Delivery_Service
 
             builder.Services.AddSwaggerGen(option =>
             {
-                option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+                option.SwaggerDoc("v1", new OpenApiInfo { Title = "Delivery.Api", Version = "1.0" });
                 option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
