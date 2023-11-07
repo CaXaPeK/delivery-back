@@ -157,7 +157,7 @@ namespace Delivery_Service.Controllers
             {
                 Id = LastUserId() + 1,
                 FullName = data.fullName,
-                BirthDate = DateOnly.FromDateTime(data.birthDate),
+                BirthDate = data.birthDate,
                 Gender = (data.gender == Gender.Male) ? "M" : "F",
                 Phone = data.phoneNumber,
                 Email = data.email,
