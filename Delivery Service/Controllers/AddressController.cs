@@ -135,8 +135,7 @@ namespace Delivery_Service.Controllers
             return Ok(results);
         }
 
-        [HttpGet]
-        public IActionResult chain(Guid objectGuid)
+        private List<SearchAddressModel> GetChain(Guid objectGuid)
         {
             var matchedAddresses = _context.AsAddrObjs
                 .Where(address => address.Objectguid == objectGuid).ToList();
@@ -157,7 +156,19 @@ namespace Delivery_Service.Controllers
                 results.Add(model);
             }
 
-            return Ok(results);
+            return results;
+        }
+
+        [HttpGet]
+        public IActionResult chain(Guid objectGuid)
+        {
+            return Ok(GetChain(objectGuid));
+        }
+
+        [HttpGet]
+        public IActionResult getaddresschain(Guid objectGuid)
+        {
+            return Ok(GetChain(objectGuid));
         }
     }
 }
