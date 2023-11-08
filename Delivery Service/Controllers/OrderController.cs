@@ -147,5 +147,36 @@ namespace Delivery_Service.Controllers
 
             return Ok(orderDto);
         }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult orderList()
+        {
+            if (IsTokenBad())
+            {
+                return Forbid();
+            }
+
+            var orders = _context.Orders.Where(x => x.UserId == GetUserIdFromToken()).ToList();
+            var orderInfoDtos = new List<OrderInfoDto>();
+
+            foreach (var order in orders)
+            {
+                var orderInfoDto = new OrderInfoDto
+                {
+                    id = order.Id,
+                    deliveryDate = order.DeliveryDate,
+                    deliveryTime = order.DeliveryTime,
+                    orderDate = order.OrderDate,
+                    orderTime = order.OrderTime,
+                    status = order.Status == "Delivered" ? OrderStatus.Delivered : OrderStatus.InProcess,
+                    price = order.Price
+                };
+
+                orderInfoDtos.Add(orderInfoDto);
+            }
+
+            return Ok(orderInfoDtos);
+        }
     }
 }

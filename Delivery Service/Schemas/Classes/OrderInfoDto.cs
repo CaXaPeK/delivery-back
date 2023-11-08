@@ -5,13 +5,19 @@ namespace Delivery_Service.Schemas.Classes
 {
     public class OrderInfoDto
     {
-        public Guid id { get; set; }
+        public int id { get; set; }
 
         [Required]
-        public DateTime deliveryTime { get; set; }
+        public DateOnly deliveryDate { get; set; }
 
         [Required]
-        public DateTime orderTime { get; set; }
+        public DateOnly orderDate { get; set; }
+
+        [Required]
+        public TimeOnly deliveryTime { get; set; }
+
+        [Required]
+        public TimeOnly orderTime { get; set; }
 
         [Required]
         public OrderStatus status { get; set; }
