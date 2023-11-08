@@ -7,9 +7,9 @@ public partial class Order
 {
     public int Id { get; set; }
 
-    public DateOnly DeliveryDate { get; set; }
+    public DateOnly? DeliveryDate { get; set; }
 
-    public TimeOnly DeliveryTime { get; set; }
+    public TimeOnly? DeliveryTime { get; set; }
 
     public DateOnly OrderDate { get; set; }
 

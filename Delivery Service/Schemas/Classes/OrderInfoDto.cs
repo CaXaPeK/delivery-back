@@ -7,14 +7,12 @@ namespace Delivery_Service.Schemas.Classes
     {
         public int id { get; set; }
 
-        [Required]
-        public DateOnly deliveryDate { get; set; }
+        public DateOnly? deliveryDate { get; set; }
 
         [Required]
         public DateOnly orderDate { get; set; }
 
-        [Required]
-        public TimeOnly deliveryTime { get; set; }
+        public TimeOnly? deliveryTime { get; set; }
 
         [Required]
         public TimeOnly orderTime { get; set; }

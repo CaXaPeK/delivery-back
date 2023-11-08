@@ -3,6 +3,7 @@ using Delivery_Service.Schemas.Classes;
 using Delivery_Service.Schemas.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace Delivery_Service.Controllers
@@ -67,9 +68,9 @@ namespace Delivery_Service.Controllers
             return false;
         }
 
-        private double OrderPrice(int id)
+        private double GetBasketPrice()
         {
-            var dishInCarts = _context.DishInCarts.Where(x => x.OrderId == id).ToList();
+            var dishInCarts = _context.DishInCarts.Where(x => x.OrderId == null).ToList();
 
             double sum = 0;
             foreach (var dishInCart in dishInCarts)
@@ -79,6 +80,15 @@ namespace Delivery_Service.Controllers
             }
 
             return sum;
+        }
+
+        private bool IsBasketEmpty()
+        {
+            if (_context.DishInCarts.Where(x => x.UserId == GetUserIdFromToken() && x.OrderId == null).Count() == 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         private List<DishBasketDto> GetOrderDishes(int id)
@@ -104,6 +114,16 @@ namespace Delivery_Service.Controllers
             }
 
             return dishBasketDtos;
+        }
+
+        private int NewOrderId()
+        {
+            if (_context.Orders.Count() > 0)
+            {
+                return _context.Orders.OrderByDescending(x => x.Id).Select(x => x.Id).First() + 1;
+            }
+
+            return 0;
         }
 
         [Authorize]
@@ -177,6 +197,54 @@ namespace Delivery_Service.Controllers
             }
 
             return Ok(orderInfoDtos);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public IActionResult create()
+        {
+            if (IsTokenBad())
+            {
+                return Forbid();
+            }
+
+            if (IsBasketEmpty())
+            {
+                Response response = new Response
+                {
+                    status = "Ошибка",
+                    message = "Корзина пуста."
+                };
+
+                return BadRequest(response);
+            }
+
+            int newId = NewOrderId();
+
+            var order = new Order
+            {
+                Id = newId,
+                OrderDate = DateOnly.FromDateTime(DateTime.UtcNow),
+                OrderTime = TimeOnly.FromDateTime(DateTime.UtcNow),
+                DeliveryDate = null,
+                DeliveryTime = null,
+                Price = GetBasketPrice(),
+                AddressId = _context.Users.Where(x => x.Id == GetUserIdFromToken()).First().Address,
+                Status = "InProcess"
+            };
+
+            _context.Add(order);
+
+            var dishesInBasket = _context.DishInCarts.Where(x => x.OrderId == null).ToList();
+
+            foreach (var dish in dishesInBasket)
+            {
+                var dishDb = _context.DishInCarts.Where(x => x.Id == dish.Id).First();
+                dishDb.OrderId = newId;
+                _context.SaveChanges();
+            }
+
+            return Ok();
         }
     }
 }
