@@ -1,7 +1,9 @@
 ﻿using Delivery_Service.Context;
 using Delivery_Service.Schemas.Classes;
 using Delivery_Service.Schemas.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Delivery_Service.Controllers
 {
@@ -35,6 +37,23 @@ namespace Delivery_Service.Controllers
             }
         }
 
+        private string GetToken()
+        {
+            string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
+            string token = authorizationHeader.Substring("Bearer ".Length);
+
+            return token;
+        }
+
+        private bool IsTokenBad()
+        {
+            if (_context.BadTokens.Where(x => x.Value == GetToken()).Count() != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
         private double? GetDishRating(int dishId)
         {
             var ratings = _context.Ratings.Where(x => x.DishId == dishId).Select(x => x.Rating1).ToList();
@@ -59,6 +78,33 @@ namespace Delivery_Service.Controllers
             {
                 return true;
             }
+            return false;
+        }
+
+        private string GetEmailFromToken()
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.ReadJwtToken(GetToken());
+
+            return token.Claims.First(claim => claim.Type == "email").Value;
+        }
+
+        private bool DishEverDelivered(int id)
+        {
+            var email = GetEmailFromToken();
+            var userId = _context.Users.Where(x => x.Email == email).First().Id;
+
+            if (_context.DishInCarts
+                .Where(dishInCart => _context.Orders.Any(
+                    order => dishInCart.DishId == id &&
+                    dishInCart.UserId == userId &&
+                    order.Id == dishInCart.OrderId &&
+                    order.Status == OrderStatus.Delivered.ToString()
+                )).Count() != 0)
+            {
+                return true;
+            }
+
             return false;
         }
 
@@ -180,6 +226,29 @@ namespace Delivery_Service.Controllers
             };
             
             return Ok(dishDto);
+        }
+
+        [Authorize]
+        [HttpGet("{id}/rating/check")]
+        public IActionResult ratingCheck(int id)
+        {
+            if (IsTokenBad())
+            {
+                return Forbid();
+            }
+
+            if (!DishExists(id))
+            {
+                Response response = new Response
+                {
+                    status = "Ошибка",
+                    message = "Блюдо с таким номером не существует."
+                };
+
+                return NotFound(response);
+            }
+            
+            return Ok(DishEverDelivered(id));
         }
     }
 }
