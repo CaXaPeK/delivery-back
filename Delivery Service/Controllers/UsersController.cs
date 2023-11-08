@@ -160,7 +160,7 @@ namespace Delivery_Service.Controllers
             {
                 Response response = new Response
                 {
-                    status = "Некорректный адрес эл. почты",
+                    status = "Ошибка",
                     message = "Пользователь с таким адресом электронной почты уже существует."
                 };
 
@@ -171,7 +171,7 @@ namespace Delivery_Service.Controllers
             {
                 Response response = new Response
                 {
-                    status = "Некорректный адрес проживания",
+                    status = "Ошибка",
                     message = "Введённый адрес проживания отсутствует в базе данных."
                 };
 
@@ -208,7 +208,7 @@ namespace Delivery_Service.Controllers
             {
                 Response response = new Response
                 {
-                    status = "Некорректный адрес эл. почты",
+                    status = "Ошибка",
                     message = "Пользователя с таким адресом электронной почты не существует."
                 };
 
@@ -219,8 +219,8 @@ namespace Delivery_Service.Controllers
             {
                 Response response = new Response
                 {
-                    status = "Неверный пароль",
-                    message = "Введённый пароль не подходит."
+                    status = "Ошибка",
+                    message = "Неверный пароль."
                 };
 
                 return BadRequest(response);
@@ -309,7 +309,7 @@ namespace Delivery_Service.Controllers
             {
                 Response response = new Response
                 {
-                    status = "Некорректный адрес проживания",
+                    status = "Ошибка",
                     message = "Введённый адрес проживания отсутствует в базе данных."
                 };
 

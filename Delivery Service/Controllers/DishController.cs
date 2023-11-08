@@ -49,14 +49,21 @@ namespace Delivery_Service.Controllers
                 {
                     averageRating += rating;
                 }
-                return averageRating/(double)ratings.Count;
+                return averageRating / (double)ratings.Count;
             }
         }
 
-
+        private bool DishExists(int id)
+        {
+            if (_context.Dishes.Where(x => x.Id == id).Count() != 0)
+            {
+                return true;
+            }
+            return false;
+        }
 
         [HttpGet]
-        public IActionResult list([FromQuery]DishCategory[] categories, bool vegetarian, DishSorting sorting, int page)
+        public IActionResult list([FromQuery] DishCategory[] categories, bool vegetarian, DishSorting sorting, int page)
         {
             var result = new List<Dish>();
 
@@ -143,6 +150,36 @@ namespace Delivery_Service.Controllers
             };
 
             return Ok(pagedList);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult dish(int id)
+        {
+            if (!DishExists(id))
+            {
+                Response response = new Response
+                {
+                    status = "Ошибка",
+                    message = "Блюдо с таким номером не существует."
+                };
+
+                return NotFound(response);
+            }
+
+            var dish = _context.Dishes.Where(x => x.Id == id).First();
+            var dishDto = new DishDto
+            {
+                id = dish.Id,
+                name = dish.Name,
+                description = dish.Description,
+                price = dish.Price,
+                image = dish.Photo,
+                vegetarian = (bool)dish.IsVegetarian,
+                rating = GetDishRating(dish.Id),
+                category = GetCategory(dish.Category)
+            };
+            
+            return Ok(dishDto);
         }
     }
 }
