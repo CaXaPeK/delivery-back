@@ -113,6 +113,15 @@ namespace Delivery_Service.Controllers
             return false;
         }
 
+        private bool DishRated(int id)
+        {
+            if (_context.Ratings.Where(x => x.DishId == id && x.UserId == GetUserIdFromToken()).Count() != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
         [HttpGet]
         public IActionResult list([FromQuery] DishCategory[] categories, bool vegetarian, DishSorting sorting, int page)
         {
@@ -155,7 +164,7 @@ namespace Delivery_Service.Controllers
             PageInfoModel pageInfo = new PageInfoModel
             {
                 size = pageSize,
-                count = (int)Math.Ceiling((double)(result.Count / pageSize)),
+                count = (int)Math.Ceiling((double)(result.Count / pageSize)) + 1,
                 current = page
             };
 
@@ -280,16 +289,33 @@ namespace Delivery_Service.Controllers
                 return NotFound(response);
             }
 
-            var rating = new Rating
+            if (!DishEverDelivered(id))
             {
-                Id = NewRatingId(),
-                Rating1 = ratingScore, //я случайно назвал значение оценки не Value, а Rating1
-                UserId = GetUserIdFromToken(),
-                DishId = id
-            };
+                Forbid();
+            }
 
-            _context.Add(rating);
-            _context.SaveChanges();
+            if (DishRated(id))
+            {
+                var rating = _context.Ratings.Where(x => x.DishId == id).First();
+                rating.Rating1 = ratingScore;
+
+                _context.SaveChanges();
+            }
+            else
+            {
+                var rating = new Rating
+                {
+                    Id = NewRatingId(),
+                    Rating1 = ratingScore, //я случайно назвал значение оценки не Value, а Rating1
+                    UserId = GetUserIdFromToken(),
+                    DishId = id
+                };
+
+                _context.Add(rating);
+                _context.SaveChanges();
+            }
+
+            
 
             return Ok();
         }
