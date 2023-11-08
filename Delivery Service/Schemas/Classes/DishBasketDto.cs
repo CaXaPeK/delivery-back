@@ -4,7 +4,7 @@ namespace Delivery_Service.Schemas.Classes
 {
     public class DishBasketDto
     {
-        public Guid id { get; set; }
+        public int id { get; set; }
 
         [Required]
         [MinLength(1)]
