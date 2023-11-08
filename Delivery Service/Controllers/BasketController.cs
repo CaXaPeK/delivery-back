@@ -109,7 +109,7 @@ namespace Delivery_Service.Controllers
         }
 
         [Authorize]
-        [HttpPost("/dish/{dishId}")]
+        [HttpPost("dish/{dishId}")]
         public IActionResult add(int dishId)
         {
             if (!DishExists(dishId))
@@ -151,7 +151,7 @@ namespace Delivery_Service.Controllers
         }
 
         [Authorize]
-        [HttpDelete("/dish/{dishId}")]
+        [HttpDelete("dish/{dishId}")]
         public IActionResult delete(int dishId, bool increase)
         {
             if (!DishExists(dishId))

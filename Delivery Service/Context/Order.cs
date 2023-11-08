@@ -7,15 +7,15 @@ public partial class Order
 {
     public int Id { get; set; }
 
-    public DateOnly? DeliveryDate { get; set; }
+    public DateOnly DeliveryDate { get; set; }
 
-    public TimeOnly? DeliveryTime { get; set; }
+    public TimeOnly DeliveryTime { get; set; }
 
-    public DateOnly? OrderDate { get; set; }
+    public DateOnly OrderDate { get; set; }
 
-    public TimeOnly? OrderTime { get; set; }
+    public TimeOnly OrderTime { get; set; }
 
-    public double? Price { get; set; }
+    public double Price { get; set; }
 
     public string? AddressId { get; set; }
 
