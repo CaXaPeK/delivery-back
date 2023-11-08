@@ -89,10 +89,15 @@ namespace Delivery_Service.Controllers
             return token.Claims.First(claim => claim.Type == "email").Value;
         }
 
-        private bool DishEverDelivered(int id)
+        private int GetUserIdFromToken()
         {
             var email = GetEmailFromToken();
-            var userId = _context.Users.Where(x => x.Email == email).First().Id;
+            return _context.Users.Where(x => x.Email == email).First().Id;
+        }
+
+        private bool DishEverDelivered(int id)
+        {
+            var userId = GetUserIdFromToken();
 
             if (_context.DishInCarts
                 .Where(dishInCart => _context.Orders.Any(
@@ -197,6 +202,15 @@ namespace Delivery_Service.Controllers
 
             return Ok(pagedList);
         }
+        private int NewRatingId()
+        {
+            if (_context.Ratings.Count() > 0)
+            {
+                return _context.Ratings.OrderByDescending(x => x.Id).Select(x => x.Id).First() + 1;
+            }
+
+            return 0;
+        }
 
         [HttpGet("{id}")]
         public IActionResult dish(int id)
@@ -249,6 +263,35 @@ namespace Delivery_Service.Controllers
             }
             
             return Ok(DishEverDelivered(id));
+        }
+
+        [Authorize]
+        [HttpPost("{id}/rating")]
+        public IActionResult ratingSet(int id, int ratingScore)
+        {
+            if (!DishExists(id))
+            {
+                Response response = new Response
+                {
+                    status = "Ошибка",
+                    message = "Блюдо с таким номером не существует."
+                };
+
+                return NotFound(response);
+            }
+
+            var rating = new Rating
+            {
+                Id = NewRatingId(),
+                Rating1 = ratingScore, //я случайно назвал значение оценки не Value, а Rating1
+                UserId = GetUserIdFromToken(),
+                DishId = id
+            };
+
+            _context.Add(rating);
+            _context.SaveChanges();
+
+            return Ok();
         }
     }
 }
