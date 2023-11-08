@@ -28,7 +28,7 @@ namespace Delivery_Service.Controllers
 
         private bool DishAlreadyInCart(int id)
         {
-            if (_context.DishInCarts.Where(x => x.DishId == id).Count() != 0)
+            if (_context.DishInCarts.Where(x => x.DishId == id && x.OrderId == null).Count() != 0)
             {
                 return true;
             }
