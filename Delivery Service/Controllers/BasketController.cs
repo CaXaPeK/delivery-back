@@ -125,7 +125,7 @@ namespace Delivery_Service.Controllers
 
             if (DishAlreadyInCart(dishId))
             {
-                int dishInCartId = _context.DishInCarts.Where(x => x.DishId == dishId).First().Id;
+                int dishInCartId = _context.DishInCarts.Where(x => x.DishId == dishId && x.OrderId == null).First().Id;
                 DishInCart dishInCart = _context.DishInCarts.Find(dishInCartId);
 
                 dishInCart.Count++;
