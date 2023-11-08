@@ -299,6 +299,7 @@ namespace Delivery_Service.Controllers
             order.Status = "Delivered";
             order.DeliveryDate = DateOnly.FromDateTime(DateTime.UtcNow);
             order.DeliveryTime = TimeOnly.FromDateTime(DateTime.UtcNow);
+            _context.SaveChanges();
 
             return Ok();
         }
