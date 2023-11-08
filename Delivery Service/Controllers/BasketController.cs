@@ -149,5 +149,65 @@ namespace Delivery_Service.Controllers
 
             return Ok();
         }
+
+        [Authorize]
+        [HttpDelete("/dish/{dishId}")]
+        public IActionResult delete(int dishId, bool increase)
+        {
+            if (!DishExists(dishId))
+            {
+                Response response = new Response
+                {
+                    status = "Ошибка",
+                    message = "Блюдо с таким номером не существует."
+                };
+
+                return NotFound(response);
+            }
+
+            if (!DishAlreadyInCart(dishId))
+            {
+                Response response = new Response
+                {
+                    status = "Ошибка",
+                    message = "В корзине нет блюда с таким номером."
+                };
+
+                return NotFound(response);
+            }
+
+            if (increase)
+            {
+                var dishCount = _context.DishInCarts.Where(x => x.DishId == dishId).First().Count;
+
+                if (dishCount >= 1)
+                {
+                    Response response = new Response
+                    {
+                        status = "Ошибка",
+                        message = "Блюдо некуда ещё уменьшать в количестве."
+                    };
+
+                    return BadRequest(response);
+                }
+
+                int dishInCartId = _context.DishInCarts.Where(x => x.DishId == dishId).First().Id;
+                DishInCart dishInCart = _context.DishInCarts.Find(dishInCartId);
+
+                dishInCart.Count--;
+
+                _context.SaveChanges();
+            }
+            else
+            {
+                int dishInCartId = _context.DishInCarts.Where(x => x.DishId == dishId).First().Id;
+                DishInCart dishInCart = _context.DishInCarts.Find(dishInCartId);
+
+                _context.DishInCarts.Remove(dishInCart);
+                _context.SaveChanges();
+            }
+
+            return Ok();
+        }
     }
 }
