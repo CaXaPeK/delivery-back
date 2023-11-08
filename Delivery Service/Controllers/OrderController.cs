@@ -258,7 +258,7 @@ namespace Delivery_Service.Controllers
         }
 
         [Authorize]
-        [HttpPut("{id}/status")]
+        [HttpPost("{id}/status")]
         public IActionResult updateStatus(int id)
         {
             if (IsTokenBad())
