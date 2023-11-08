@@ -315,8 +315,6 @@ namespace Delivery_Service.Controllers
                 _context.SaveChanges();
             }
 
-            
-
             return Ok();
         }
     }
