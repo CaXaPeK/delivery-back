@@ -180,7 +180,7 @@ namespace Delivery_Service.Controllers
             {
                 var dishCount = _context.DishInCarts.Where(x => x.DishId == dishId).First().Count;
 
-                if (dishCount >= 1)
+                if (dishCount <= 1)
                 {
                     Response response = new Response
                     {

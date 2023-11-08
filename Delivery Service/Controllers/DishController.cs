@@ -291,7 +291,7 @@ namespace Delivery_Service.Controllers
 
             if (!DishEverDelivered(id))
             {
-                Forbid();
+                return Forbid();
             }
 
             if (DishRated(id))
