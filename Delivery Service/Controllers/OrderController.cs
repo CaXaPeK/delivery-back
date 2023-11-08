@@ -61,7 +61,7 @@ namespace Delivery_Service.Controllers
 
         private bool IsOrderYours(int id)
         {
-            if (_context.Orders.Where(x => x.Id == id).First().UserId == GetUserIdFromToken())
+            if (_context.Orders.Where(x => x.Id == id && x.UserId == GetUserIdFromToken()).Count() != 0)
             {
                 return true;
             }
@@ -239,7 +239,8 @@ namespace Delivery_Service.Controllers
                 DeliveryTime = null,
                 Price = GetBasketPrice(),
                 AddressId = _context.Users.Where(x => x.Id == GetUserIdFromToken()).First().Address,
-                Status = "InProcess"
+                Status = "InProcess",
+                UserId = GetUserIdFromToken()
             };
 
             _context.Add(order);
