@@ -91,6 +91,15 @@ namespace Delivery_Service.Controllers
             return false;
         }
 
+        private bool OrderAlreadyDelivered(int id)
+        {
+            if (_context.Orders.Where(x => x.Id == id).First().Status == "Delivered")
+            {
+                return true;
+            }
+            return false;
+        }
+
         private List<DishBasketDto> GetOrderDishes(int id)
         {
             var dishInCarts = _context.DishInCarts.Where(x => x.OrderId == id).ToList();
@@ -234,6 +243,7 @@ namespace Delivery_Service.Controllers
             };
 
             _context.Add(order);
+            _context.SaveChanges();
 
             var dishesInBasket = _context.DishInCarts.Where(x => x.OrderId == null).ToList();
 
@@ -243,6 +253,51 @@ namespace Delivery_Service.Controllers
                 dishDb.OrderId = newId;
                 _context.SaveChanges();
             }
+
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpPut("{id}/status")]
+        public IActionResult updateStatus(int id)
+        {
+            if (IsTokenBad())
+            {
+                return Forbid();
+            }
+
+            if (!OrderExists(id))
+            {
+                Response response = new Response
+                {
+                    status = "Ошибка",
+                    message = "Заказ с таким номером не существует."
+                };
+
+                return NotFound(response);
+            }
+
+            if (!IsOrderYours(id))
+            {
+                return Forbid();
+            }
+
+            if (OrderAlreadyDelivered(id))
+            {
+                Response response = new Response
+                {
+                    status = "Ошибка",
+                    message = "Заказ уже доставлен."
+                };
+
+                return BadRequest(response);
+            }
+
+            var order = _context.Orders.Where(x => x.Id == id).First();
+
+            order.Status = "Delivered";
+            order.DeliveryDate = DateOnly.FromDateTime(DateTime.UtcNow);
+            order.DeliveryTime = TimeOnly.FromDateTime(DateTime.UtcNow);
 
             return Ok();
         }
