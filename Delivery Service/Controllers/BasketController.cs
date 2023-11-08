@@ -17,6 +17,24 @@ namespace Delivery_Service.Controllers
             _context = context;
         }
 
+        private bool DishExists(int id)
+        {
+            if (_context.Dishes.Where(x => x.Id == id).Count() != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private bool DishAlreadyInCart(int id)
+        {
+            if (_context.DishInCarts.Where(x => x.DishId == id).Count() != 0)
+            {
+                return true;
+            }
+            return false;
+        }
+
         private string GetToken()
         {
             string authorizationHeader = HttpContext.Request.Headers["Authorization"].ToString();
@@ -46,6 +64,16 @@ namespace Delivery_Service.Controllers
         {
             var email = GetEmailFromToken();
             return _context.Users.Where(x => x.Email == email).First().Id;
+        }
+
+        private int NewDishInCartId()
+        {
+            if (_context.DishInCarts.Count() > 0)
+            {
+                return _context.DishInCarts.OrderByDescending(x => x.Id).Select(x => x.Id).First() + 1;
+            }
+
+            return 0;
         }
 
         [Authorize]
@@ -78,6 +106,48 @@ namespace Delivery_Service.Controllers
             }
 
             return Ok(dishDtos);
+        }
+
+        [Authorize]
+        [HttpPost("/dish/{dishId}")]
+        public IActionResult add(int dishId)
+        {
+            if (!DishExists(dishId))
+            {
+                Response response = new Response
+                {
+                    status = "Ошибка",
+                    message = "Блюдо с таким номером не существует."
+                };
+
+                return NotFound(response);
+            }
+
+            if (DishAlreadyInCart(dishId))
+            {
+                int dishInCartId = _context.DishInCarts.Where(x => x.DishId == dishId).First().Id;
+                DishInCart dishInCart = _context.DishInCarts.Find(dishInCartId);
+
+                dishInCart.Count++;
+
+                _context.SaveChanges();
+            }
+            else
+            {
+                var dishInCart = new DishInCart
+                {
+                    Id = NewDishInCartId(),
+                    UserId = GetUserIdFromToken(),
+                    DishId = dishId,
+                    OrderId = null,
+                    Count = 1
+                };
+
+                _context.Add(dishInCart);
+                _context.SaveChanges();
+            }
+
+            return Ok();
         }
     }
 }
