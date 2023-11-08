@@ -106,21 +106,23 @@ namespace Delivery_Service.Controllers
         public IActionResult search(long parentObjectId, string? query)
         {
             var matchedChildren = _context.AsHouses
-                .Where(house => _context.AsAdmHierarchies.Any(hierarchy => hierarchy.Objectid == house.Objectid && hierarchy.Parentobjid == parentObjectId));
+                .Where(house => _context.AsAdmHierarchies.Any(hierarchy => hierarchy.Objectid == house.Objectid && hierarchy.Parentobjid == parentObjectId)).ToList();
 
             var results = new List<SearchAddressModel>();
 
             foreach (AsHouse house in matchedChildren)
             {
-                string level = _context.AsAddrObjs.Where(x => x.Objectid == parentObjectId).First().Level;
+                string level = _context.AsAddrObjs.Where(x => x.Objectid == parentObjectId).Select(x => x.Level).First();
+                string houseNum = house.Housenum == null ? "" : house.Housenum;
+                string queryUnnulled = query == null ? "" : query;
 
-                if (house.Housenum.Contains(query))
+                if (houseNum.Contains(queryUnnulled)) 
                 {
                     var model = new SearchAddressModel
                     {
                         objectId = house.Objectid,
                         objectGuid = house.Objectguid,
-                        text = house.Housenum,
+                        text = houseNum,
                         objectLevel = GetLevelName(level),
                         objectLevelText = GetLevelDescription(level)
                     };

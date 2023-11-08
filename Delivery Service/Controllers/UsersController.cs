@@ -262,7 +262,7 @@ namespace Delivery_Service.Controllers
 
         [Authorize]
         [HttpGet]
-        public IActionResult profileget()
+        public IActionResult profile()
         {
             if (!IsTokenSent())
             {
@@ -293,7 +293,7 @@ namespace Delivery_Service.Controllers
 
         [Authorize]
         [HttpPut]
-        public IActionResult profileedit(UserEditModel data)
+        public IActionResult profile(UserEditModel data)
         {
             if (!IsTokenSent())
             {
