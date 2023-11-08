@@ -2,6 +2,7 @@
 using Delivery_Service.Schemas.Classes;
 using Delivery_Service.Schemas.Enums;
 using Microsoft.AspNetCore.Mvc;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Delivery_Service.Controllers
 {
@@ -129,6 +130,31 @@ namespace Delivery_Service.Controllers
 
                     results.Add(model);
                 }
+            }
+
+            return Ok(results);
+        }
+
+        [HttpGet]
+        public IActionResult chain(Guid objectGuid)
+        {
+            var matchedAddresses = _context.AsAddrObjs
+                .Where(address => address.Objectguid == objectGuid).ToList();
+
+            var results = new List<SearchAddressModel>();
+
+            foreach (AsAddrObj address in matchedAddresses)
+            {
+                var model = new SearchAddressModel
+                {
+                    objectId = address.Objectid,
+                    objectGuid = address.Objectguid,
+                    text = address.Name,
+                    objectLevel = GetLevelName(address.Level),
+                    objectLevelText = GetLevelDescription(address.Level)
+                };
+
+                results.Add(model);
             }
 
             return Ok(results);
